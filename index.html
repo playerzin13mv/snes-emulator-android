@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SN-16 PRO Multi-System Emulator</title>
+
+    <!-- PWA & WebApp Support (Preparado para conversão em APK) -->
+    <link rel="icon" type="image/png" href="default-icon.png">
+    <link rel="apple-touch-icon" href="default-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNOLTE2IFBSTyIsCiAgInNob3J0X25hbWUiOiAiU04tMTYiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogImZ1bGxzY3JlZW4iLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxMjEyMTIiLAogICJ0aGVtZV9jb2xvciI6ICIjMTIxMjEyIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGVmYXVsdC1pY29uLnBuZyIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
+
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('font.ttf') format('truetype'), url('font.woff2') format('woff2');
+            font-display: swap;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+        
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('background.jpg'), url('background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+            font-family: 'CustomFont', Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .menu-container {
+            background: linear-gradient(145deg, rgba(35,35,35,0.95) 0%, rgba(18,18,18,0.98) 100%);
+            padding: 22px;
+            border-radius: 14px;
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+            max-width: 380px;
+            width: 90%;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #0055ff;
+            text-shadow: 2px 2px #000, 0 0 10px rgba(0,85,255,0.5);
+            letter-spacing: 2px;
+        }
+        h1 span {
+            color: #ffcc00;
+            text-shadow: 2px 2px #000, 0 0 10px rgba(255,204,0,0.5);
+        }
+
+        .lang-select-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .file-box {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            color: #ddd;
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            border: 1px solid #34ce57;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            width: 100%;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+        }
+
+        .btn-fullscreen {
+            background: linear-gradient(180deg, #dc3545 0%, #bd2130 100%);
+            color: white;
+            border: 1px solid #e4606d;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            width: 100%;
+            font-size: 12px;
+            box-shadow: 0 4px 15px rgba(220,53,69,0.3);
+        }
+
+        .recent-section {
+            margin-top: 12px;
+            text-align: left;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 8px;
+        }
+        .recent-title {
+            font-size: 10px;
+            color: #ffcc00;
+            margin-bottom: 6px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 110px;
+            overflow-y: auto;
+        }
+        .recent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px;
+            color: #ddd;
+            cursor: pointer;
+        }
+        .recent-item:hover { background: rgba(255,255,255,0.15); border-color: #ffcc00; }
+        .recent-item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .recent-item img {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .credits-box {
+            margin-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 8px;
+            font-size: 10px;
+            color: #aaa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .credits-author {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        .yt-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ff4444;
+            text-decoration: none;
+            font-weight: bold;
+            background: rgba(255,0,0,0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,0,0,0.3);
+            font-size: 10px;
+            transition: 0.2s;
+        }
+        .yt-link img {
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+        }
+
+        #status {
+            font-size: 11px;
+            color: #28a745;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .ingame-top-bar {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100000;
+            gap: 8px;
+        }
+
+        .ingame-btn {
+            background: rgba(20, 20, 20, 0.85);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        #gameMenuOverlay, #stateMenuOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 100001;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(8px);
+        }
+
+        .menu-btn {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            width: 240px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .menu-btn:active { background: #333; }
+        .btn-resume { border-color: #28a745; color: #28a745; }
+        .btn-lang-ingame { border-color: #3388ff; color: #3388ff; }
+
+        .slot-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 55vh;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 330px;
+        }
+        .slot-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .slot-card:hover { border-color: #ffcc00; background: rgba(255,255,255,0.1); }
+        .slot-title { font-size: 13px; font-weight: bold; color: #fff; text-align: left; }
+        .slot-date { font-size: 10px; color: #aaa; text-align: left; }
+
+        #toastNotification {
+            display: none;
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 15, 15, 0.95);
+            border: 2px solid #28a745;
+            color: #28a745;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 100005;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+        }
+
+        .touch-controls {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 44vh;
+            z-index: 99999;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            pointer-events: none;
+        }
+
+        .control-group {
+            position: relative;
+            width: 155px;
+            height: 155px;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        .pad-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            color: white;
+            font-weight: bold;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            touch-action: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .pad-btn:active { background: rgba(255, 255, 255, 0.35); }
+
+        .btn-top { top: 0; left: 50px; width: 50px; height: 48px; }
+        .btn-bottom { bottom: 0; left: 50px; width: 50px; height: 48px; }
+        .btn-left { top: 48px; left: 0; width: 46px; height: 50px; }
+        .btn-right { top: 48px; right: 0; width: 46px; height: 50px; }
+
+        .center-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            pointer-events: auto;
+        }
+
+        .sys-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            padding: 6px 9px;
+            font-size: 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            touch-action: none;
+        }
+
+        .btn-toggle-x {
+            background: rgba(217, 189, 56, 0.25);
+            border: 2px solid #ffcc00;
+            color: #ffcc00;
+        }
+        .btn-toggle-x.locked {
+            background: rgba(255, 204, 0, 0.9);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-container" id="menuContainer">
+        <div class="header-top">
+            <h1>SN-16 <span>PRO</span></h1>
+            <button class="lang-select-btn" id="langToggleBtn">PT</button>
+        </div>
+        <p id="txtSubtitle">Selecione a ROM (.nes, .sfc, .bin, .gen, .md).<br><small style="color:#ffcc00;">Sistema PRO Ultra-Fluido 60FPS.</small></p>
+        
+        <div class="file-box">
+            <input type="file" id="romInput" accept=".nes,.sfc,.smc,.bin,.gen,.smd,.md">
+        </div>
+
+        <button class="btn-action" id="runRomBtn">Rodar ROM</button>
+        <button class="btn-fullscreen" id="fullScreenBtn">Ecrã Inteiro</button>
+
+        <div class="recent-section">
+            <div class="recent-title" id="txtRecentTitle">JOGOS RECENTES</div>
+            <div class="recent-list" id="recentList"></div>
+        </div>
+
+        <div class="credits-box">
+            <div>Desenvolvido por <span class="credits-author">playerzin_13mv</span></div>
+            <a class="yt-link" href="https://youtube.com/@playerzin_13mv?si=PHVodto4ScSXzspQ" target="_blank" rel="noopener">
+                <img src="youtube-icon.png" onerror="this.style.display='none'" alt="YT">
+                <span>Canal do YouTube</span>
+            </a>
+        </div>
+        
+        <div id="status">A aguardar cartucho...</div>
+    </div>
+
+    <!-- Barra Superior In-Game -->
+    <div class="ingame-top-bar" id="ingameTopBar">
+        <button class="ingame-btn" id="btnInGameFullscreen">⛶</button>
+        <button class="ingame-btn" id="inGameMenuBtn">MENU</button>
+    </div>
+
+    <div id="toastNotification">Salvando...</div>
+
+    <div id="gameMenuOverlay">
+        <button class="menu-btn btn-resume" id="btnResume">Continuar</button>
+        <button class="menu-btn btn-lang-ingame" id="btnLangIngame">Idioma: PT</button>
+        <button class="menu-btn" id="btnSaveStateMenu">Save State</button>
+        <button class="menu-btn" id="btnLoadStateMenu">Load State</button>
+        <button class="menu-btn" id="btnSaveAndQuit">Sair e Salvar</button>
+        <button class="menu-btn" id="btnQuit">Sair</button>
+    </div>
+
+    <div id="stateMenuOverlay">
+        <h3 id="stateMenuTitle" style="color:#ffcc00; margin-bottom:10px;">SELECIONAR SLOT</h3>
+        <div class="slot-container" id="slotContainer"></div>
+        <button class="menu-btn" id="btnCloseStateMenu" style="margin-top:10px;">Voltar</button>
+    </div>
+
+    <div id="touch-controls-standard" class="touch-controls">
+        <div class="control-group" id="dpad-std">
+            <div class="pad-btn btn-top" data-action="up">▲</div>
+            <div class="pad-btn btn-bottom" data-action="down">▼</div>
+            <div class="pad-btn btn-left" data-action="left">◀</div>
+            <div class="pad-btn btn-right" data-action="right">▶</div>
+        </div>
+
+        <div class="center-controls">
+            <button class="sys-btn" data-action="select">SELECT</button>
+            <button class="sys-btn" data-action="start">START</button>
+            <button class="sys-btn btn-toggle-x" id="toggleXBtn">SEGURAR X</button>
+        </div>
+
+        <div class="control-group" id="actions-std">
+            <div class="pad-btn btn-top" data-action="x">X</div>
+            <div class="pad-btn btn-bottom" data-action="a">A</div>
+            <div class="pad-btn btn-left" data-action="b">B</div>
+            <div class="pad-btn btn-right" data-action="y">Y</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Nostalgist } from 'https://cdn.jsdelivr.net/npm/nostalgist@latest/+esm';
+
+        let selectedFile = null;
+        let nostalgistInstance = null;
+        let currentRomName = "";
+        let isXLocked = false;
+        let activeStateMode = 'save';
+        let simpleSaves = {};
+
+        const languages = ['pt', 'en', 'es', 'zh'];
+        let langIndex = 0;
+
+        const i18n = {
+            pt: {
+                subtitle: "Selecione a ROM (.nes, .sfc, .bin, .gen, .md).<br><small style='color:#ffcc00;'>Sistema PRO Ultra-Fluido 60FPS.</small>",
+                runRom: "Rodar ROM",
+                fullscreen: "Ecrã Inteiro",
+                waiting: "A aguardar cartucho...",
+                running: "A rodar!",
+                formatError: "Formato incompatível!",
+                loading: "A iniciar SN-16 PRO...",
+                resume: "Continuar",
+                saveState: "Save State",
+                loadState: "Load State",
+                saveAndQuit: "Sair e Salvar",
+                quit: "Sair",
+                saving: "Salvando...",
+                saved: "Jogo Salvo!",
+                loadingSave: "A carregar save...",
+                loadedSave: "Save Carregado!",
+                noSave: "Nenhum save neste slot!",
+                toggleX: "SEGURAR X",
+                locked: "TRAVADO",
+                recentTitle: "JOGOS RECENTES",
+                noRecent: "Nenhum jogo recente.",
+                selectSlot: "SELECIONAR SLOT DE SAVE",
+                emptySlot: "Slot Vazio",
+                back: "Voltar",
+                playBtn: "JOGAR",
+                langLabel: "PT"
+            },
+            en: {
+                subtitle: "Select ROM (.nes, .sfc, .bin, .gen, .md).<br><small style='color:#ffcc00;'>Optimized PRO 60FPS System.</small>",
+                runRom: "Run ROM",
+                fullscreen: "Fullscreen",
+                waiting: "Waiting for cartridge...",
+                running: "Running!",
+                formatError: "Incompatible format!",
+                loading: "Starting SN-16 PRO...",
+                resume: "Resume",
+                saveState: "Save State",
+                loadState: "Load State",
+                saveAndQuit: "Save & Quit",
+                quit: "Quit",
+                saving: "Saving...",
+                saved: "Game Saved!",
+                loadingSave: "Loading save...",
+                loadedSave: "Save Loaded!",
+                noSave: "No save in this slot!",
+                toggleX: "HOLD X",
+                locked: "LOCKED",
+                recentTitle: "RECENT GAMES",
+                noRecent: "No recent games.",
+                selectSlot: "SELECT SAVE SLOT",
+                emptySlot: "Empty Slot",
+                back: "Back",
+                playBtn: "PLAY",
+                langLabel: "EN"
+            },
+            es: {
+                subtitle: "Seleccione la ROM (.nes, .sfc, .bin, .gen, .md).<br><small style='color:#ffcc00;'>Sistema PRO Ultra-Fluido 60FPS.</small>",
+                runRom: "Ejecutar ROM",
+                fullscreen: "Pantalla Completa",
+                waiting: "Esperando cartucho...",
+                running: "¡Ejecutando!",
+                formatError: "¡Formato incompatible!",
+                loading: "Iniciando SN-16 PRO...",
+                resume: "Continuar",
+                saveState: "Save State",
+                loadState: "Load State",
+                saveAndQuit: "Guardar y Salir",
+                quit: "Salir",
+                saving: "Guardando...",
+                saved: "¡Juego Guardado!",
+                loadingSave: "Cargando estado...",
+                loadedSave: "¡Estado Cargado!",
+                noSave: "¡No hay guardado en esta ranura!",
+                toggleX: "MANTENER X",
+                locked: "BLOQUEADO",
+                recentTitle: "JUEGOS RECIENTES",
+                noRecent: "Sin juegos recientes.",
+                selectSlot: "SELECCIONAR RANURA",
+                emptySlot: "Ranura Vacía",
+                back: "Volver",
+                playBtn: "JUGAR",
+                langLabel: "ES"
+            },
+            zh: {
+                subtitle: "选择 ROM 图像 (.nes, .sfc, .bin, .gen, .md)<br><small style='color:#ffcc00;'>优化版专业 60FPS 流畅系统</small>",
+                runRom: "运行 ROM",
+                fullscreen: "全屏显示",
+                waiting: "等待插入卡带...",
+                running: "运行中！",
+                formatError: "格式不兼容！",
+                loading: "正在启动 SN-16 PRO...",
+                resume: "继续游戏",
+                saveState: "保存进度",
+                loadState: "读取进度",
+                saveAndQuit: "保存并退出",
+                quit: "退出",
+                saving: "正在保存...",
+                saved: "游戏已保存！",
+                loadingSave: "正在读取...",
+                loadedSave: "读取成功！",
+                noSave: "此槽位没有存档！",
+                toggleX: "锁定 X 键",
+                locked: "已锁定",
+                recentTitle: "最近游玩",
+                noRecent: "暂无最近记录",
+                selectSlot: "选择存档槽",
+                emptySlot: "空槽位",
+                back: "返回",
+                playBtn: "开始",
+                langLabel: "中文"
+            }
+        };
+
+        const romInput = document.getElementById('romInput');
+        const runRomBtn = document.getElementById('runRomBtn');
+        const statusDiv = document.getElementById('status');
+        const menuContainer = document.getElementById('menuContainer');
+        const touchControls = document.getElementById('touch-controls-standard');
+        const ingameTopBar = document.getElementById('ingameTopBar');
+        const inGameMenuBtn = document.getElementById('inGameMenuBtn');
+        const btnInGameFullscreen = document.getElementById('btnInGameFullscreen');
+        const gameMenuOverlay = document.getElementById('gameMenuOverlay');
+        const stateMenuOverlay = document.getElementById('stateMenuOverlay');
+        const slotContainer = document.getElementById('slotContainer');
+        const toastNotification = document.getElementById('toastNotification');
+        const fullScreenBtn = document.getElementById('fullScreenBtn');
+        const toggleXBtn = document.getElementById('toggleXBtn');
+        const langToggleBtn = document.getElementById('langToggleBtn');
+        const btnLangIngame = document.getElementById('btnLangIngame');
+        const txtSubtitle = document.getElementById('txtSubtitle');
+        const txtRecentTitle = document.getElementById('txtRecentTitle');
+        const recentList = document.getElementById('recentList');
+
+        // IndexedDB para salvar ROMs inteiras localmente no navegador/celular
+        function openRomDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('sn16_rom_db', 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('roms')) {
+                        db.createObjectStore('roms');
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        async function saveRomToDB(name, blob) {
+            try {
+                const db = await openRomDB();
+                const tx = db.transaction('roms', 'readwrite');
+                tx.objectStore('roms').put(blob, name);
+            } catch(e) {}
+        }
+
+        async function getRomFromDB(name) {
+            try {
+                const db = await openRomDB();
+                return new Promise((resolve) => {
+                    const tx = db.transaction('roms', 'readonly');
+                    const req = tx.objectStore('roms').get(name);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                });
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        fullScreenBtn.addEventListener('click', toggleFullscreen);
+        btnInGameFullscreen.addEventListener('click', toggleFullscreen);
+
+        async function renderRecentGames() {
+            const recents = JSON.parse(localStorage.getItem('sn16_recent_games') || '[]');
+            const t = i18n[languages[langIndex]];
+            recentList.innerHTML = '';
+
+            if (recents.length === 0) {
+                recentList.innerHTML = `<div style="font-size:10px; color:#777;">${t.noRecent}</div>`;
+                return;
+            }
+
+            recents.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'recent-item';
+                div.innerHTML = `
+                    <div class="recent-item-info">
+                        <img src="${item.icon || 'default-icon.png'}" onerror="this.src='default-icon.png'" alt="Icon">
+                        <span>${item.name}</span>
+                    </div>
+                    <span style="color:#28a745; font-weight:bold; font-size:10px;">▶ ${t.playBtn}</span>
+                `;
+                div.addEventListener('click', () => launchFromRecent(item.name));
+                recentList.appendChild(div);
+            });
+        }
+
+        async function addRecentGame(fileName, fileBlob) {
+            let recents = JSON.parse(localStorage.getItem('sn16_recent_games') || '[]');
+            recents = recents.filter(item => item.name !== fileName);
+            recents.unshift({ name: fileName, icon: 'default-icon.png' });
+            if (recents.length > 5) recents.pop();
+            localStorage.setItem('sn16_recent_games', JSON.stringify(recents));
+            if (fileBlob) await saveRomToDB(fileName, fileBlob);
+            renderRecentGames();
+        }
+
+        async function launchFromRecent(fileName) {
+            const blob = await getRomFromDB(fileName);
+            if (!blob) {
+                alert("ROM não encontrada na memória! Por favor, escolha o arquivo novamente.");
+                return;
+            }
+            const file = new File([blob], fileName);
+            startEmulatorWithFile(file);
+        }
+
+        function updateLanguage() {
+            const currentLang = languages[langIndex];
+            const t = i18n[currentLang];
+            txtSubtitle.innerHTML = t.subtitle;
+            runRomBtn.innerText = t.runRom;
+            fullScreenBtn.innerText = t.fullscreen;
+            txtRecentTitle.innerText = t.recentTitle;
+            if (!selectedFile) statusDiv.innerText = t.waiting;
+            document.getElementById('btnResume').innerText = t.resume;
+            document.getElementById('btnSaveStateMenu').innerText = t.saveState;
+            document.getElementById('btnLoadStateMenu').innerText = t.loadState;
+            document.getElementById('btnSaveAndQuit').innerText = t.saveAndQuit;
+            document.getElementById('btnQuit').innerText = t.quit;
+            document.getElementById('stateMenuTitle').innerText = t.selectSlot;
+            document.getElementById('btnCloseStateMenu').innerText = t.back;
+            
+            if (!isXLocked) toggleXBtn.innerText = t.toggleX;
+            else toggleXBtn.innerText = t.locked;
+
+            langToggleBtn.innerText = t.langLabel;
+            btnLangIngame.innerText = "🌐 " + t.langLabel;
+            renderRecentGames();
+        }
+
+        langToggleBtn.addEventListener('click', () => {
+            langIndex = (langIndex + 1) % languages.length;
+            updateLanguage();
+        });
+        btnLangIngame.addEventListener('click', () => {
+            langIndex = (langIndex + 1) % languages.length;
+            updateLanguage();
+        });
+
+        romInput.addEventListener('change', (event) => {
+            selectedFile = event.target.files[0];
+            if (selectedFile) {
+                statusDiv.innerHTML = `Ficheiro: ${selectedFile.name}`;
+                runRomBtn.style.display = 'block';
+            }
+        });
+
+        runRomBtn.addEventListener('click', () => {
+            if (selectedFile) startEmulatorWithFile(selectedFile);
+        });
+
+        async function startEmulatorWithFile(fileObj) {
+            const currentLang = languages[langIndex];
+            const t = i18n[currentLang];
+            const fileName = fileObj.name.toLowerCase();
+            currentRomName = fileObj.name;
+            let core = 'fceumm';
+
+            if (fileName.endsWith('.sfc') || fileName.endsWith('.smc')) {
+                core = 'snes9x';
+            } else if (fileName.endsWith('.bin') || fileName.endsWith('.gen') || fileName.endsWith('.smd') || fileName.endsWith('.md')) {
+                core = 'genesis_plus_gx';
+            } else if (!fileName.endsWith('.nes')) {
+                statusDiv.innerHTML = t.formatError;
+                return;
+            }
+
+            statusDiv.innerHTML = t.loading;
+            await addRecentGame(currentRomName, fileObj);
+
+            try {
+                if (nostalgistInstance) {
+                    await nostalgistInstance.exit();
+                    nostalgistInstance = null;
+                }
+
+                menuContainer.style.display = 'none';
+                touchControls.style.display = 'flex';
+                ingameTopBar.style.display = 'flex';
+
+                // Motores otimizados para zero travamentos e 60 FPS lisos
+                nostalgistInstance = await Nostalgist.launch({
+                    core: core,
+                    rom: fileObj,
+                    retroarchConfig: {
+                        video_smooth: false,
+                        video_threaded: true,
+                        audio_sync: true,
+                        audio_latency: 64,
+                        fast_forward_ratio: 1.0
+                    }
+                });
+
+                statusDiv.innerHTML = t.running;
+            } catch (error) {
+                alert("Erro ao iniciar: " + error.message);
+                menuContainer.style.display = 'block';
+                touchControls.style.display = 'none';
+                ingameTopBar.style.display = 'none';
+                statusDiv.innerHTML = t.formatError;
+            }
+        }
+
+        function openSlotMenu(mode) {
+            activeStateMode = mode;
+            gameMenuOverlay.style.display = 'none';
+            stateMenuOverlay.style.display = 'flex';
+            slotContainer.innerHTML = '';
+            const t = i18n[languages[langIndex]];
+
+            for (let i = 1; i <= 4; i++) {
+                const slotData = simpleSaves[i];
+                const card = document.createElement('div');
+                card.className = 'slot-card';
+                
+                const dateStr = slotData && slotData.date ? slotData.date : t.emptySlot;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="slot-title">Slot ${i}</div>
+                        <div class="slot-date">${dateStr}</div>
+                    </div>
+                    <div style="font-size:12px; color:#ffcc00; font-weight:bold;">${mode === 'save' ? 'SALVAR' : 'CARREGAR'}</div>
+                `;
+
+                card.addEventListener('click', () => executeSlotAction(i));
+                slotContainer.appendChild(card);
+            }
+        }
+
+        async function executeSlotAction(slotNum) {
+            if (!nostalgistInstance) return;
+            stateMenuOverlay.style.display = 'none';
+            const t = i18n[languages[langIndex]];
+
+            if (activeStateMode === 'save') {
+                showToast(t.saving);
+                try {
+                    const result = await nostalgistInstance.saveState();
+                    const now = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    simpleSaves[slotNum] = {
+                        state: result.state,
+                        date: now
+                    };
+
+                    showToast(t.saved);
+                    // Continua no jogo despausado após salvar
+                    await nostalgistInstance.resume();
+                } catch (e) {
+                    showToast("Erro ao salvar!");
+                    await nostalgistInstance.resume();
+                }
+            } else {
+                if (!simpleSaves[slotNum] || !simpleSaves[slotNum].state) {
+                    showToast(t.noSave);
+                    gameMenuOverlay.style.display = 'flex';
+                    return;
+                }
+                showToast(t.loadingSave);
+                try {
+                    await nostalgistInstance.loadState(simpleSaves[slotNum].state);
+                    showToast(t.loadedSave);
+                    // RETORNA AO MENU DE PAUSA (O JOGO PERMANECE PAUSADO ATÉ O JOGADOR CLICAR EM CONTINUAR)
+                    gameMenuOverlay.style.display = 'flex';
+                } catch (e) {
+                    showToast("Erro ao carregar!");
+                    gameMenuOverlay.style.display = 'flex';
+                }
+            }
+        }
+
+        document.getElementById('btnSaveStateMenu').addEventListener('click', () => openSlotMenu('save'));
+        document.getElementById('btnLoadStateMenu').addEventListener('click', () => openSlotMenu('load'));
+        document.getElementById('btnCloseStateMenu').addEventListener('click', () => {
+            stateMenuOverlay.style.display = 'none';
+            gameMenuOverlay.style.display = 'flex';
+        });
+
+        // Botão Segurar X
+        toggleXBtn.addEventListener('click', async () => {
+            if (!nostalgistInstance) return;
+            const currentLang = languages[langIndex];
+            const t = i18n[currentLang];
+            isXLocked = !isXLocked;
+            if (isXLocked) {
+                toggleXBtn.classList.add('locked');
+                toggleXBtn.innerText = t.locked;
+                await nostalgistInstance.pressDown('x');
+            } else {
+                toggleXBtn.classList.remove('locked');
+                toggleXBtn.innerText = t.toggleX;
+                await nostalgistInstance.pressUp('x');
+            }
+        });
+
+        inGameMenuBtn.addEventListener('click', async () => {
+            if (gameMenuOverlay.style.display === 'flex') {
+                gameMenuOverlay.style.display = 'none';
+                if (nostalgistInstance) await nostalgistInstance.resume();
+            } else {
+                if (nostalgistInstance) await nostalgistInstance.pause();
+                gameMenuOverlay.style.display = 'flex';
+            }
+        });
+
+        document.getElementById('btnResume').addEventListener('click', async () => {
+            gameMenuOverlay.style.display = 'none';
+            if (nostalgistInstance) await nostalgistInstance.resume();
+        });
+
+        function showToast(text) {
+            toastNotification.innerText = text;
+            toastNotification.style.display = 'block';
+            setTimeout(() => {
+                toastNotification.style.display = 'none';
+            }, 1800);
+        }
+
+        document.getElementById('btnSaveAndQuit').addEventListener('click', async () => {
+            if (!nostalgistInstance) return;
+            const currentLang = languages[langIndex];
+            const t = i18n[currentLang];
+            showToast(t.saving);
+            try {
+                const result = await nostalgistInstance.saveState();
+                const now = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                simpleSaves[1] = { state: result.state, date: now };
+
+                showToast(t.saved);
+                gameMenuOverlay.style.display = 'none';
+                await nostalgistInstance.exit();
+                nostalgistInstance = null;
+                touchControls.style.display = 'none';
+                ingameTopBar.style.display = 'none';
+                menuContainer.style.display = 'block';
+                runRomBtn.style.display = 'none';
+                romInput.value = '';
+                isXLocked = false;
+                toggleXBtn.classList.remove('locked');
+                updateLanguage();
+                statusDiv.innerHTML = t.waiting;
+            } catch (e) {
+                showToast("Erro!");
+            }
+        });
+
+        document.getElementById('btnQuit').addEventListener('click', async () => {
+            const currentLang = languages[langIndex];
+            const t = i18n[currentLang];
+            gameMenuOverlay.style.display = 'none';
+            if (nostalgistInstance) {
+                await nostalgistInstance.exit();
+                nostalgistInstance = null;
+            }
+            touchControls.style.display = 'none';
+            ingameTopBar.style.display = 'none';
+            menuContainer.style.display = 'block';
+            runRomBtn.style.display = 'none';
+            romInput.value = '';
+            isXLocked = false;
+            toggleXBtn.classList.remove('locked');
+            updateLanguage();
+            statusDiv.innerHTML = t.waiting;
+        });
+
+        const activePointers = new Map();
+        const activeButtons = new Set();
+
+        function updateEmulatedButtons(buttonsSet) {
+            if (!nostalgistInstance) return;
+            activeButtons.forEach(btn => {
+                if (!buttonsSet.has(btn)) {
+                    nostalgistInstance.pressUp(btn);
+                    activeButtons.delete(btn);
+                }
+            });
+            buttonsSet.forEach(btn => {
+                if (!activeButtons.has(btn)) {
+                    nostalgistInstance.pressDown(btn);
+                    activeButtons.add(btn);
+                }
+            });
+        }
+
+        function handleTouchInputs(e) {
+            e.preventDefault();
+            if (e.type === 'pointerup' || e.type === 'pointercancel' || e.type === 'pointerleave') {
+                activePointers.delete(e.pointerId);
+            } else {
+                const elem = document.elementFromPoint(e.clientX, e.clientY);
+                const btn = elem ? elem.closest('.pad-btn, .sys-btn') : null;
+                if (btn && touchControls.contains(btn)) {
+                    const action = btn.getAttribute('data-action');
+                    if (action) activePointers.set(e.pointerId, action);
+                } else {
+                    activePointers.delete(e.pointerId);
+                }
+            }
+
+            const currentPressed = new Set(activePointers.values());
+            if (isXLocked) currentPressed.add('x');
+            updateEmulatedButtons(currentPressed);
+        }
+
+        ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'pointerleave'].forEach(eventType => {
+            document.addEventListener(eventType, handleTouchInputs, { passive: false });
+        });
+
+        updateLanguage();
+    </script>
+</body>
+</html>
